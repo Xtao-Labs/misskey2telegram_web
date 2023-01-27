@@ -1,0 +1,4 @@
+httpx==0.23.3
+fastapi==0.89.1
+starlette==0.23.1
+uvicorn==0.20.0
