@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Config - Misskey Telegram Bridge</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" integrity="sha512-t4GWSVZO1eC8BM339Xd7Uphw5s17a86tIZIj8qRxhnKub6WoyhnrxeCIMeAqBPgdZGlCcG2PrZjMc+Wr78+5Xg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js" integrity="sha512-3dZ9wIrMMij8rOH7X3kLfXAzwtcHpuYpEgQg1OA4QAob1e81H8ntUQmQm3pBudqIoySO5j0tHN4ENzA6+n2r4w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://static.collei.net/paimon/js/telegram-web-app.js"></script>
+
+    <!-- custom styles -->
+    <style>
+        body {
+            background-color: #222;
+            color: #222;
+        }
+
+        h1 {
+            color: #eee;
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .navbar {
+            background-color: #333;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .navbar-brand {
+            color: #eee;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Config</h1>
+</header>
+<div style="height: 30px;"></div>
+<main class="container">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#tab1">Timeline</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab2">Push</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane active" id="tab1">
+            <form>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <label class="form-check-label text-white" for="task1-switch">Spoiler</label>
+                        <input class="form-check-input" type="checkbox" id="task1-switch">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="tab-pane" id="tab2">
+            <form>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <label class="form-check-label text-white" for="task2-switch">Spoiler</label>
+                        <input class="form-check-input" type="checkbox" id="task2-switch">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2">
+        <button class="btn btn-primary" type="button" onclick="submit();">Save</button>
+    </div>
+</main>
+<div style="height: 100px;"></div>
+
+<footer>
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Misskey Telegram Bridge</a>
+        </div>
+    </nav>
+</footer>
+
+<script>
+    const t1_switch = document.getElementById("task1-switch");
+    const t2_switch = document.getElementById("task2-switch");
+
+    function submit() {
+        const web_data = {
+            timeline_spoiler: t1_switch.checked,
+            push_spoiler: t2_switch.checked
+        };
+        const data = parseJson(web_data, 0, "OK");
+        console.log(data);
+        Telegram.WebApp.sendData(data);
+        Telegram.WebApp.close();
+    }
+
+    function init() {
+        const bot_data = getBotData();
+        const timeline_spoiler = bot_data.timeline_spoiler ?? false;
+        const push_spoiler = bot_data.push_spoiler ?? false;
+        t1_switch.checked = timeline_spoiler;
+        t2_switch.checked = push_spoiler;
+    }
+
+    function getBotData() {
+        return JSON.parse(window.atob("{{ user.bot_data }}"));
+    }
+
+    function getPath() {
+        return "{{ user.command }}"
+    }
+
+    function parseJson(data, code, message) {
+        const path = getPath();
+        return JSON.stringify({
+                path: path,
+                data: data,
+                code: code,
+                message: message
+            }
+        );
+    }
+
+    init();
+</script>
+
+</body>
+
+</html>

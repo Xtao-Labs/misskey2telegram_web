@@ -3,14 +3,17 @@ import traceback
 import uuid
 import PIL.Image
 from httpx import AsyncClient
-from fastapi import FastAPI
-from starlette.responses import RedirectResponse, StreamingResponse
+from fastapi import FastAPI, Query
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+from starlette.responses import RedirectResponse, StreamingResponse, HTMLResponse
 
 from utils import gen_url, get_auth
 
 app = FastAPI()
 with open("default.jpg", "rb") as f:
     default_jpg = io.BytesIO(f.read())
+templates = Jinja2Templates(directory="public/templates")
 
 
 @app.get('/gen')
@@ -60,3 +63,14 @@ async def back_to_telegram(
         return RedirectResponse(f"https://t.me/{username}?start={data['token']}")
     else:
         return data
+
+
+@app.get("/config", response_class=HTMLResponse)
+async def debug_config_page(
+    request: Request,
+    bot_data: str = Query(..., title="bot_data"),
+):
+    user = {"command": "config", "bot_data": bot_data}
+    return templates.TemplateResponse(
+        "config.html", {"request": request, "user": user}
+    )
